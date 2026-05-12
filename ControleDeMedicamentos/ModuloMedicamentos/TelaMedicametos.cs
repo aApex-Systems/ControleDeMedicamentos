@@ -1,3 +1,4 @@
+using System.Linq;
 using ControleDeMedicamentos.ConsoleApp.Compartilhado;
 using ControleDeMedicamentos.ConsoleApp.ModuloFornecedores;
 using ControleDeMedicamentos.ConsoleApp.Utilidades;
@@ -11,6 +12,58 @@ public class TelaMedicamento : TelaBase<Medicamento>, ITelaOpcoes, ITelaCrud
     public TelaMedicamento(IRepositorio<Medicamento> repositorio, IRepositorio<Fornecedor> repositorioFornecedor) : base("Medicamento", repositorio)
     {
         this.repositorioFornecedor = repositorioFornecedor;
+    }
+
+    public new void Cadastrar()
+    {
+        ExibirCabecalho("Cadastro de Medicamento");
+
+        try
+        {
+            Medicamento novoMedicamento = ObterDadosCadastrais();
+
+            List<string> erros = novoMedicamento.Validar();
+
+            if (erros.Count > 0)
+            {
+                Notificador.ExibirMensagensErro(erros);
+                Cadastrar();
+                return;
+            }
+
+            Medicamento? medicamentoExistente = repositorio.SelecionarTodos()
+                .FirstOrDefault(m => m.Nome.Equals(novoMedicamento.Nome, StringComparison.OrdinalIgnoreCase)
+                    && m.Fornecedor.Id == novoMedicamento.Fornecedor.Id);
+
+            if (medicamentoExistente != null)
+            {
+                Medicamento medicamentoAtualizado = new Medicamento(
+                    novoMedicamento.Nome,
+                    novoMedicamento.Descricao,
+                    medicamentoExistente.QuantidadeEstoque + novoMedicamento.QuantidadeEstoque,
+                    novoMedicamento.Fornecedor
+                );
+
+                repositorio.Editar(medicamentoExistente.Id, medicamentoAtualizado);
+
+                Notificador.ExibirMensagem($"A quantidade do medicamento \"{medicamentoExistente.Nome}\" foi atualizada para {medicamentoAtualizado.QuantidadeEstoque}.");
+                return;
+            }
+
+            repositorio.Cadastrar(novoMedicamento);
+
+            Notificador.ExibirMensagem($"O registro \"{novoMedicamento.Id}\" foi cadastrado com sucesso!");
+        }
+        catch (FormatException)
+        {
+            Notificador.ExibirMensagem("O formato do valor de um dos campos está inválido.");
+            Cadastrar();
+        }
+        catch (Exception)
+        {
+            Notificador.ExibirMensagem("Ocorreu um erro inesperado. Tente novamente.");
+            Cadastrar();
+        }
     }
 
  public override void VisualizarTodos(bool deveExibirCabecalho)
@@ -27,15 +80,17 @@ public class TelaMedicamento : TelaBase<Medicamento>, ITelaOpcoes, ITelaCrud
         }
 
         Console.WriteLine(
-           "{0, -7} | {1, -30} | {2, -15} | {3, -15} | {4, -20}",
-           "Id", "Nome", "Fornecedor", "Quantidade", "Descrição"
+           "{0, -7} | {1, -30} | {2, -15} | {3, -12} | {4, -20} | {5, -10}",
+           "Id", "Nome", "Fornecedor", "Quantidade", "Descrição", "Status"
        );
 
         foreach (Medicamento m in medicamentos)
         {
+            string status = m.QuantidadeEstoque < 20 ? "EM FALTA" : string.Empty;
+
             Console.WriteLine(
-               "{0, -7} | {1, -30} | {2, -15} | {3, -15} | {4, -20}",
-               m.Id, m.Nome, m.Fornecedor.Nome, m.QuantidadeEstoque, m.Descricao
+               "{0, -7} | {1, -30} | {2, -15} | {3, -12} | {4, -20} | {5, -10}",
+               m.Id, m.Nome, m.Fornecedor.Nome, m.QuantidadeEstoque, m.Descricao, status
            );
         }
 
@@ -56,7 +111,10 @@ public class TelaMedicamento : TelaBase<Medicamento>, ITelaOpcoes, ITelaCrud
         string descricao = Console.ReadLine() ?? string.Empty;
 
         Console.Write("Digite a quantidade em estoque: ");
-        int quantidadeEstoque = Convert.ToUInt16(Console.ReadLine());
+        string quantidadeEntrada = Console.ReadLine() ?? string.Empty;
+
+        if (!int.TryParse(quantidadeEntrada, out int quantidadeEstoque))
+            throw new FormatException();
 
         Fornecedor? fornecedorSelecionado;
 

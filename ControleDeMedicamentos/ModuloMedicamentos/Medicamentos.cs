@@ -6,10 +6,10 @@ namespace ControleDeMedicamentos.ConsoleApp.ModuloMedicamentos;
 
 public class Medicamento : EntidadeBase
 {
-    public string Nome { get; set; }
-    public string Descricao { get; set; }
+    public string Nome { get; set; } = string.Empty;
+    public string Descricao { get; set; } = string.Empty;
     public int QuantidadeEstoque { get; set; }
-    public Fornecedor Fornecedor { get; set; }
+    public Fornecedor Fornecedor { get; set; } = null!;
 
     public Medicamento()
     {
@@ -27,11 +27,17 @@ public class Medicamento : EntidadeBase
     {
         List<string> erros = new List<string>();
 
-        if (Nome.Length < 3 || Nome.Length > 100)
+        if (string.IsNullOrWhiteSpace(Nome) || Nome.Length < 3 || Nome.Length > 100)
             erros.Add("O campo \"Nome\" deve conter entre 3 e 100 caracteres.");
 
-        if (Descricao.Length < 5 || Descricao.Length > 255)
+        if (string.IsNullOrWhiteSpace(Descricao) || Descricao.Length < 5 || Descricao.Length > 255)
             erros.Add("O campo \"Descrição\" deve conter entre 5 e 255 caracteres.");
+
+        if (QuantidadeEstoque <= 0)
+            erros.Add("O campo \"Quantidade em estoque\" deve ser um número positivo.");
+
+        if (Fornecedor == null)
+            erros.Add("O campo \"Fornecedor\" é obrigatório.");
 
         return erros;
     }

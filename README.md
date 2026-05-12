@@ -36,7 +36,7 @@ Cartão do SUS (15 dígitos)
 CPF (11 dígitos)
 O sistema não deve permitir cadastro de pacientes com mesmo cartão do SUS
 
-3. Módulo de Medicamentos
+## 3. Módulo de Medicamentos
 Requisitos Funcionais
 
 O sistema deve permitir registrar novos medicamentos
