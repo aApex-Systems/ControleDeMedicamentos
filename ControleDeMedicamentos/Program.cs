@@ -34,7 +34,7 @@ while (true)
 
     if (telaSelecionada == null)
     {
-        Console.Clear();
+        //Console.Clear();
         break;
     }
 
@@ -44,7 +44,7 @@ while (true)
 
         if (opcaoSubMenu == "S")
         {
-            Console.Clear();
+            //Console.Clear();
             break;
         }
 

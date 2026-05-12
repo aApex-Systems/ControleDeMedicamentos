@@ -15,9 +15,9 @@ public abstract class TelaBase<T> where T : EntidadeBase
 
     public virtual string? ObterOpcaoMenu()
     {
-        string nomeMinusculo = nomeEntidade.ToLower();
+        string nomeMinusculo = nomeEntidade.ToUpper();
 
-        Console.Clear();
+        //Console.Clear();
         Console.WriteLine("---------------------------------");
         Console.WriteLine($"Gestão de {nomeEntidade}");
         Console.WriteLine("---------------------------------");
