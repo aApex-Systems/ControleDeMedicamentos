@@ -10,6 +10,9 @@ public class Funcionario : EntidadeBase
 
     public Funcionario()
     {
+        Nome = string.Empty;
+        Telefone = string.Empty;
+        Cpf = string.Empty;
     }
 
     public Funcionario(string nome, string telefone, string cpf)
