@@ -1,8 +1,7 @@
-using System;
+namespace ControleDeMedicamentos.ConsoleApp.ModuloEstoque.Base;
 
-namespace ControleDeMedicamentos.ModuloEstoque.Base;
-
-public class ITelaCR.cs
+public interface ITelaCR
 {
-
+  void Cadastrar();
+  void VisualizarTodos();
 }

@@ -1,8 +1,5 @@
-using System;
+using ControleDeMedicamentos.ConsoleApp.Compartilhado.Memoria;
 
-namespace ControleDeMedicamentos.ModuloEstoque.Entradas;
+namespace ControleDeMedicamentos.ConsoleApp.ModuloEstoque.Entradas;
 
-public class RepositorioEntradasEmMemoria
-{
-
-}
+public class RepositorioEntradaEmMemoria : RepositorioBaseEmMemoria<Entrada>;

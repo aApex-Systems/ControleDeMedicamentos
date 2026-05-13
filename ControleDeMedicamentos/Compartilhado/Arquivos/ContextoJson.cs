@@ -1,67 +1,66 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using ControleDeMedicamentos.ConsoleApp.ModuloPacientes;
-using ControleDeMedicamentos.ConsoleApp.ModuloFornecedores;
 using ControleDeMedicamentos.ConsoleApp.ModuloMedicamentos;
 using ControleDeMedicamentos.ConsoleApp.ModuloFuncionarios;
-
+using ControleDeMedicamentos.ConsoleApp.ModuloEstoque.Entradas;
+using ControleDeMedicamentos.ConsoleApp.ModuloEstoque.Saidas;
 namespace ControleDeMedicamentos.ConsoleApp.Compartilhado.Arquivos;
 
 public class ContextoJson
 {
-    private readonly string caminhoArquivo;
+  private readonly string caminhoArquivo;
+  public List<Fornecedor> Fornecedores { get; set; } = new List<Fornecedor>();
+  public List<Paciente> Pacientes { get; set; } = new List<Paciente>();
+  public List<Medicamento> Medicamentos { get; set; } = new List<Medicamento>();
+  public List<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+  public List<Entrada> Entradas { get; set; } = new List<Entrada>();
+  public List<Saida> Saidas { get; set; } = new List<Saida>();
 
-    public List<Paciente> Pacientes { get; set; } = new List<Paciente>();
+  public ContextoJson()
+  {
+    string caminhoAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
-    public List<Fornecedor> Fornecedores { get; set; } = new List<Fornecedor>();
+    string caminhoDiretorio = Path.Combine(caminhoAppData, "ControleDeMedicamentos");
 
-    public List<Medicamento> Medicamentos { get; set; } = new List<Medicamento>();
+    Directory.CreateDirectory(caminhoDiretorio);
 
-    public List<Funcionario> Funcionarios { get; set; } = new List<Funcionario>();
+    caminhoArquivo = Path.Combine(caminhoDiretorio, "dados.json");
+  }
 
-    public ContextoJson()
-    {
-        string caminhoAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+  public void Salvar()
+  {
+    JsonSerializerOptions opcoesJson = new JsonSerializerOptions();
+    opcoesJson.WriteIndented = true;
+    opcoesJson.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    opcoesJson.ReferenceHandler = ReferenceHandler.Preserve;
 
-        string caminhoDiretorio = Path.Combine(caminhoAppData, "ControleDeMedicamentos");
+    string jsonString = JsonSerializer.Serialize(this, opcoesJson);
 
-        Directory.CreateDirectory(caminhoDiretorio);
+    File.WriteAllText(caminhoArquivo, jsonString);
+  }
 
-        caminhoArquivo = Path.Combine(caminhoDiretorio, "dados.json");
-    }
+  public void Carregar()
+  {
+    if (!File.Exists(caminhoArquivo))
+      return;
 
-    public void Salvar()
-    {
-        JsonSerializerOptions opcoesJson = new JsonSerializerOptions();
-        opcoesJson.WriteIndented = true;
-        opcoesJson.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        opcoesJson.ReferenceHandler = ReferenceHandler.Preserve;
+    string jsonString = File.ReadAllText(caminhoArquivo);
 
-        string jsonString = JsonSerializer.Serialize(this, opcoesJson);
+    JsonSerializerOptions opcoesJson = new JsonSerializerOptions();
+    opcoesJson.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+    opcoesJson.ReferenceHandler = ReferenceHandler.Preserve;
 
-        File.WriteAllText(caminhoArquivo, jsonString);
-    }
+    ContextoJson? contextoSalvo = JsonSerializer.Deserialize<ContextoJson>(jsonString, opcoesJson);
 
-    public void Carregar()
-    {
-        if (!File.Exists(caminhoArquivo))
-            return;
+    if (contextoSalvo == null)
+      return;
 
-        string jsonString = File.ReadAllText(caminhoArquivo);
-
-        JsonSerializerOptions opcoesJson = new JsonSerializerOptions();
-        opcoesJson.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        opcoesJson.ReferenceHandler = ReferenceHandler.Preserve;
-
-        ContextoJson? contextoSalvo = JsonSerializer.Deserialize<ContextoJson>(jsonString, opcoesJson);
-
-        if (contextoSalvo == null)
-            return;
-
-        this.Pacientes = contextoSalvo.Pacientes;
-
-        this.Fornecedores = contextoSalvo.Fornecedores;
-
-        this.Medicamentos = contextoSalvo.Medicamentos;
-    }
+    this.Fornecedores = contextoSalvo.Fornecedores;
+    this.Pacientes = contextoSalvo.Pacientes;
+    this.Medicamentos = contextoSalvo.Medicamentos;
+    this.Funcionarios = contextoSalvo.Funcionarios;
+    this.Entradas = contextoSalvo.Entradas;
+    this.Saidas = contextoSalvo.Saidas;
+  }
 }

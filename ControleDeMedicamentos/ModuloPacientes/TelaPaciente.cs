@@ -1,4 +1,5 @@
 using ControleDeMedicamentos.ConsoleApp.Compartilhado;
+using ControleDeMedicamentos.ConsoleApp.Utilidades;
 
 namespace ControleDeMedicamentos.ConsoleApp.ModuloPacientes;
 
@@ -13,18 +14,24 @@ public class TelaPaciente : TelaBase<Paciente>, ITelaCrud, ITelaOpcoes
         if (deveExibirCabecalho)
             ExibirCabecalho("Visualização de Pacientes");
 
+        List<Paciente> pacientes = repositorio.SelecionarTodos();
+
+        if (pacientes.Count == 0)
+        {
+          Notificador.ExibirMensagem("Nenhum item registrado.");
+          return;
+        }
+
         Console.WriteLine(
-            "{0, -7} | {1, -30} | {2, -15} | {3, -17} | {4, -17}",
-            "Id", "Nome", "Telefone", "CPF", "Cartão SUS"
+            "{0, -7} | {1, -25} | {2, -20} | {3, -20} | {4, -15}",
+            "Id", "Nome", "Telefone", "Cartão SUS", "CPF"
         );
 
-        List<Paciente> registros = repositorio.SelecionarTodos();
-
-        foreach (Paciente p in registros)
+        foreach (Paciente p in pacientes)
         {
             Console.WriteLine(
-                "{0, -7} | {1, -30} | {2, -15} | {3, -17} | {4, -17}",
-                p.Id, p.Nome, p.Telefone, p.Cpf, p.CartaoSus
+                "{0, -7} | {1, -25} | {2, -20} | {3, -20} | {4, -15}",
+                p.Id, p.Nome, p.Telefone, p.CartaoSUS, p.CPF
             );
         }
 
@@ -61,11 +68,11 @@ public class TelaPaciente : TelaBase<Paciente>, ITelaCrud, ITelaOpcoes
 
         foreach (Paciente p in registros)
         {
-            if (p.Id != idIgnorado && p.Cpf == novaEntidade.Cpf)
-                erros.Add("Já existe o registro de um paciente com o CPF informado.");
-
-            if (p.Id != idIgnorado && p.CartaoSus == novaEntidade.CartaoSus)
-                erros.Add("Já existe o registro de um paciente com o Cartão SUS informado.");
+           if (p.Id != idIgnorado && p.CartaoSUS == novaEntidade.CartaoSUS)
+           {
+              erros.Add($"Já existe um paciente com o Cartão SUS \"{novaEntidade.CartaoSUS}\"");
+              break;
+           }
         }
 
         return erros;

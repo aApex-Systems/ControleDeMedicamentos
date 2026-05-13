@@ -1,8 +1,5 @@
-using System;
+using ControleDeMedicamentos.ConsoleApp.Compartilhado.Memoria;
 
-namespace ControleDeMedicamentos.ModuloEstoque.Saidas;
+namespace ControleDeMedicamentos.ConsoleApp.ModuloEstoque.Saidas;
 
-public class RepositorioSaidaEmMemoria
-{
-
-}
+public class RepositorioSaidaEmMemoria : RepositorioBaseEmMemoria<Saida>;

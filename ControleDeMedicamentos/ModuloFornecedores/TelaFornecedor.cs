@@ -1,4 +1,5 @@
 using ControleDeMedicamentos.ConsoleApp.Compartilhado;
+using ControleDeMedicamentos.ConsoleApp.Utilidades;
 
 namespace ControleDeMedicamentos.ConsoleApp.ModuloFornecedores;
 
@@ -31,26 +32,32 @@ public class TelaFornecedor : TelaBase<Fornecedor>, ITelaOpcoes, ITelaCrud
         if (deveExibirCabecalho)
             ExibirCabecalho("Visualização de Fornecedores");
 
+        List<Fornecedor> fornecedores = repositorio.SelecionarTodos();
+
+        if (fornecedores.Count == 0)
+        {
+            Notificador.ExibirMensagem("Nenhum fornecedor registrado.");
+            return;
+        }
+
         Console.WriteLine(
-            "{0, -7} | {1, -30} | {2, -15} | {3, -17}",
+            "{0, -7} | {1, -30} | {2, -15} | {3, -20}",
             "Id", "Nome", "Telefone", "CNPJ"
         );
 
-        List<Fornecedor> registros = repositorio.SelecionarTodos();
-
-        foreach (Fornecedor f in registros)
+        foreach (Fornecedor f in fornecedores)
         {
             Console.WriteLine(
-                "{0, -7} | {1, -30} | {2, -15} | {3, -17}",
+                "{0, -7} | {1, -30} | {2, -15} | {3, -20}",
                 f.Id, f.Nome, f.Telefone, f.Cnpj
             );
         }
 
         if (deveExibirCabecalho)
         {
-            Console.WriteLine("---------------------------------");
-            Console.Write("Digite ENTER para continuar...");
-            Console.ReadLine();
+        Console.WriteLine("---------------------------------");
+        Console.WriteLine("Pressione Enter para voltar ao menu...");
+        Console.ReadLine();
         }
     }
 
@@ -59,7 +66,7 @@ public class TelaFornecedor : TelaBase<Fornecedor>, ITelaOpcoes, ITelaCrud
         Console.Write("Digite o nome do fornecedor: ");
         string nome = Console.ReadLine() ?? string.Empty;
 
-        Console.Write("Digite o telefone do fornecedor: ");
+        Console.Write("Digite o telefone do fornecedor com DDD: ");
         string telefone = Console.ReadLine() ?? string.Empty;
 
         Console.Write("Digite o CNPJ do fornecedor: ");
@@ -70,14 +77,17 @@ public class TelaFornecedor : TelaBase<Fornecedor>, ITelaOpcoes, ITelaCrud
 
     protected override List<string> ValidarRegistroDuplicado(Fornecedor novaEntidade, string? idIgnorado = null)
     {
-        List<string> erros = [];
+        List<string> erros = new List<string>();
 
-        List<Fornecedor> registros = repositorio.SelecionarTodos();
+        List<Fornecedor> fornecedores = repositorio.SelecionarTodos();
 
-        foreach (Fornecedor f in registros)
+        foreach (Fornecedor f in fornecedores)
         {
             if (f.Id != idIgnorado && f.Cnpj == novaEntidade.Cnpj)
-                erros.Add("Já existe o registro de um fornecedor com o CNPJ informado.");
+            {
+                erros.Add($"Já existe um fornecedor com o Cnpj \"{novaEntidade.Cnpj}\"");
+                break;
+            }
         }
 
         return erros;
